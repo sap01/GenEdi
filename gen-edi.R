@@ -194,9 +194,11 @@ GenEdiData <- function(edi.net, noise = 0, num.time.series, output.filename) {
 ## See the output params of function 'simulateNetwork()' 
 ## in R package 'EDISON' version 1.1.1.
 ##################################################################################################
-GenLargerEdiNet <- function(edi.net, first.net, num.inter.seg.changes, true.net.filename, true.net.adj.mx.filename) {
+GenLargerEdiNet <- function(edi.net, first.net, num.inter.seg.changes, 
+                            true.net.filename, true.net.adj.mx.filename) {
   
-  ## The obj 'edi.net' is a list containing the following five elements.
+  ## The obj 'edi.net' is a template for synthetic time-varying gene regularoy networks
+  ## to be generated. It is a list that contains the following five elements:
   ## network: 
   ## epsilon
   ## k

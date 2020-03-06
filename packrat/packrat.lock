@@ -3,6 +3,17 @@ PackratVersion: 0.4.9.3
 RVersion: 3.5.1
 Repos: CRAN=https://cloud.r-project.org
 
+Package: EDISON
+Source: CRAN
+Version: 1.1.1
+Hash: 65b894c801e558773d4eabc5f81401ed
+Requires: corpcor
+
+Package: corpcor
+Source: CRAN
+Version: 1.6.9
+Hash: f641167f85158bfc7cd4b97ac1c26701
+
 Package: packrat
 Source: CRAN
 Version: 0.4.9-3
