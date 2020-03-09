@@ -109,20 +109,23 @@ GenEdiNet <- function(true.net.filename, true.net.adj.mx.filename,
 ##################################################################################################
 
 ##################################################################################################
-## Goal: Generate synthetic time-series gene expression data time-varying gene regulatory networks
+## Goal: Generate synthetic time-series gene expression data 
+## given a set of time-varying gene regulatory networks (GRNs)
 ## using R package 'EDISON' version 1.1.1
 ##
-## Input params: 
-## 'edi.net': A set of time-varying gene regulatory networks.
-## See input param 'net' of function 'simulateNetwork()' 
-## in R package 'EDISON' version 1.1.1.
-## 'noise': See input param 'noise' of function 'simulateNetwork()' 
-## in R package 'EDISON' version 1.1.1.
-## 'num.time.series': Number of time series to be generated.
+## Input params:: 
+## 'edi.net': User-defined time-varying GRNs.
+## See input param 'edi.net' of function 'GenLargerEdiNet()' 
+## inside this R script.
 ##
-## Output params:
-## See the output params of function 'simulateNetwork()' 
-## in R package 'EDISON' version 1.1.1.
+## 'noise': The standard deviation of the to-be-applied Gaussian noise. 
+## Please see input param 'noise' of fun
+##
+## 'num.time.series': Number of time-series to be generated.
+##
+## 'output.filename': The name of the output file. The file 
+## contains the generated time-series data in the TSV format.
+##
 ##################################################################################################
 GenEdiData <- function(edi.net, noise = 0, num.time.series, output.filename) {
   
@@ -151,6 +154,8 @@ GenEdiData <- function(edi.net, noise = 0, num.time.series, output.filename) {
   for (ts.idx in 1:num.time.series) {
     
     ## Simulate data using given networks.
+    ## By default, the inter-segment changes are 'sequential' which
+    ## honours the smoothly time-varying assumption.
     edi.data <- EDISON::simulateNetwork(noise = noise, net = edi.net) 
     
     ## A num.nodes by num.time.pts matrix
@@ -179,32 +184,48 @@ GenEdiData <- function(edi.net, noise = 0, num.time.series, output.filename) {
 ##################################################################################################
 
 ##################################################################################################
-## Goal: Generate synthetic time-series gene expression data time-varying gene regulatory networks
+## Goal: Generate synthetic time-varying gene regulatory networks (GRNs)
 ## using R package 'EDISON' version 1.1.1
 ##
-## Input params: 
-## 'edi.net': A set of time-varying gene regulatory networks.
-## See input param 'net' of function 'simulateNetwork()' 
-## in R package 'EDISON' version 1.1.1.
-## 'noise': See input param 'noise' of function 'simulateNetwork()' 
-## in R package 'EDISON' version 1.1.1.
-## 'num.time.series': Number of time series to be generated.
+####################
+## Input params:: 
+## 'edi.net': EDISON-compatible networks.
+## This is a template for synthetic time-varying GRNs to be generated.
+## It is a list that contains five elements, they are:
+## {network, epsilon, k, changes, l}.
+## 'network' is a list of length equal to the desired number of time-segments.
+## Each element contains a template for the adjacency matrix of the network
+## of the corresponding time-segment. The template may vary in dimensions
+## from the generated adjacency matrix; that is not an issue.
+## 'epsilon' is the list of desired change-point locations.
+## The i-th elt in epsilon indicates the ending time-point of the i-th
+## time-segment.
+## 'k' indicates the desired number of change-points.
+## 'changes' is a list. The t-th element represents the edge-difference
+## between the network corresponding to the t-th time-segment and 
+## the network corresponding to the (t+1)-th time-segment.
+## 'l' represents the total number of time-points.
+## The 'edi.net' class is similar to the output of  
+## function 'generateNetwork()' in R package 'EDISON' version 1.1.1.
+## Please see the package documentation for details. 
 ##
-## Output params:
-## See the output params of function 'simulateNetwork()' 
-## in R package 'EDISON' version 1.1.1.
+## 'first.net': the desired first network of the set of time-varying GRNs. 
+## It must be provided by the user.
+##
+## 'num.inter.seg.changes': Number of inter-segment changes.
+## This is an integer. It indicates by how many edges the network
+## corresponding to the (t+1)-th time-segment should differ from 
+## the previous network i.e. the network corresponding to the t-th time-segment.
+##
+## 'true.net.filename': The name of the file in which the generated networks
+## will be saved.
+##
+## 'true.net.adj.mx.filename': The name of the file in which the list of 
+## the adjacency matrices of the generated networks will be saved.
+##
 ##################################################################################################
 GenLargerEdiNet <- function(edi.net, first.net, num.inter.seg.changes, 
                             true.net.filename, true.net.adj.mx.filename) {
-  
-  ## The obj 'edi.net' is a template for synthetic time-varying gene regularoy networks
-  ## to be generated. It is a list that contains the following five elements:
-  ## network: 
-  ## epsilon
-  ## k
-  ## changes
-  ## l
-  
   num.nodes <- ncol(first.net)
   
   num.cells <- (num.nodes)^2
@@ -253,20 +274,13 @@ GenLargerEdiNet <- function(edi.net, first.net, num.inter.seg.changes,
 ##################################################################################################
 
 ##################################################################################################
-## Goal: Generate synthetic time-series gene expression data time-varying gene regulatory networks
-## using R package 'EDISON' version 1.1.1
+## Goal: Given an 'edi.net' obj, generate corresponding network adjacency matrices.
 ##
-## Input params: 
-## 'edi.net': A set of time-varying gene regulatory networks.
-## See input param 'net' of function 'simulateNetwork()' 
-## in R package 'EDISON' version 1.1.1.
-## 'noise': See input param 'noise' of function 'simulateNetwork()' 
-## in R package 'EDISON' version 1.1.1.
-## 'num.time.series': Number of time series to be generated.
+## Input params::
+## 'edi.net': See input param of function 'GenLargerEdiNet' 
+## inside this R script.
+## 'num.nodes': Number of nodes in each network adjacency matrix.
 ##
-## Output params:
-## See the output params of function 'simulateNetwork()' 
-## in R package 'EDISON' version 1.1.1.
 ##################################################################################################
 EdiNetToAdjMx <- function(edi.net, num.nodes) {
   ## Distinct adjacency matrix or matrices of the true net
@@ -288,10 +302,10 @@ EdiNetToAdjMx <- function(edi.net, num.nodes) {
   
   rm(num.nets)
   
-  ## Locations of the change pts.
+  ## Locations of the change-points.
   ## The i-th elt of vector 'edi.net$epsilon' 
-  ## represents the ending time pt of the j-th 
-  ## time segment.
+  ## represents the ending time pt of the i-th 
+  ## time-segment.
   end.pts <- edi.net$epsilon
   
   true.net.adj.matrix <- vector(mode = 'list', length = edi.net$l)
